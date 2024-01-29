@@ -1,0 +1,44 @@
+version: '3.8'
+
+services:
+  web:
+    build: ./nginx
+    container_name: sample-web
+    ports:
+      - "8080:80"
+    volumes:
+      - ${NGINX_TARGETDIR_SITE}:/usr/share/nginx/html/site
+      - ${NGINX_TARGETDIR_PHP}:/usr/share/nginx/html/php
+    depends_on: 
+      - php
+    networks:
+      - frontend
+      - backend
+  php:
+    build: ./php-fpm
+    container_name: sample-php
+    ports:
+      - "9000:9000"
+    volumes:
+      - ${PHP_TARGETDIR_PHP}:/usr/share/nginx/html/php
+    depends_on:
+      - db
+    networks:
+      - frontend
+      - backend
+  db:
+    build: ./mariadb
+    container_name: sample-db
+    environment:
+      - SKIP_INNODB=1
+      - MYSQL_DATABASE=mydatabase
+      - MYSQL_ROOT_PASSWORD=rootpwd
+    ports:
+      - "3306:3306"
+    networks:
+      - backend
+networks:
+  frontend:
+    driver: bridge
+  backend:
+    driver: bridge
