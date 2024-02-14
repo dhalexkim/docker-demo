@@ -37,8 +37,29 @@ services:
       - "3306:3306"
     networks:
       - backend
+  se-hub:
+    platform: linux/amd64
+    build: ./seGrid
+    container_name: se-hub
+    ports:
+      - "4442:4442"
+      - "4443:4443"
+      - "4444:4444"
+  se-firefox:
+    platform: linux/amd64
+    image: selenium/node-firefox:dev
+    container_name: se-firefox
+    shm_size: 2gb
+    depends_on:
+      - se-hub
+    environment:
+      - SE_EVENT_BUS_HOST=se-hub
+      - SE_EVENT_BUS_PUBLISH_PORT=4442
+      - SE_EVENT_BUS_SUBSCRIBE_PORT=4443
 networks:
   frontend:
     driver: bridge
   backend:
     driver: bridge
+  # grid:
+  #   driver: bridge
